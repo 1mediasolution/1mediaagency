@@ -12,6 +12,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { BrandIcon } from './BrandLogo';
+import { submitLead } from '../lib/api';
+import { isValidEmail, isValidIndianMobile, isValidWebsiteUrl } from '../lib/validation';
 
 interface ContactSectionProps {
   initialObjective?: string;
@@ -49,14 +51,17 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = 'Full Name is required';
-    if (!formData.email.trim() || !formData.email.includes('@')) {
+    if (!formData.email.trim() || !isValidEmail(formData.email)) {
       errs.email = 'Please provide a valid work email';
     }
-    if (!formData.whatsapp.trim()) {
-      errs.whatsapp = 'Direct WhatsApp number is required for session coordination';
+    if (!formData.whatsapp.trim() || !isValidIndianMobile(formData.whatsapp)) {
+      errs.whatsapp = 'Please provide a valid 10-digit Indian WhatsApp number';
     }
     if (!formData.companyName.trim()) {
       errs.companyName = 'Company / Brand name is required';
+    }
+    if (!isValidWebsiteUrl(formData.websiteUrl)) {
+      errs.websiteUrl = 'Please enter a valid website URL starting with http:// or https://';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -67,11 +72,23 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Simulate real submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 800);
+    setErrors({});
+    submitLead({
+      formType: 'contact',
+      fullName: formData.fullName,
+      email: formData.email,
+      whatsapp: formData.whatsapp,
+      companyName: formData.companyName,
+      websiteUrl: formData.websiteUrl,
+      objective: formData.primaryObjective,
+      budget: formData.budgetAllocation,
+      notes: formData.notes,
+    })
+      .then(() => setIsSubmitted(true))
+      .catch((error) => {
+        setErrors({ form: error instanceof Error ? error.message : 'Unable to submit. Please try again.' });
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
@@ -211,12 +228,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       Website URL
                     </label>
                     <input
-                      type="text"
+                      type="url"
                       value={formData.websiteUrl}
                       onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
                       placeholder="https://company.com"
                       className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                     />
+                    {errors.websiteUrl && (
+                      <p className="text-xs text-rose-600 mt-1">{errors.websiteUrl}</p>
+                    )}
                   </div>
                 </div>
 
@@ -280,6 +300,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
 
                 {/* Direct Contact CTA */}
+                {errors.form && (
+                  <p className="text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2">{errors.form}</p>
+                )}
+
                 <div className="pt-2">
                   <button
                     type="submit"

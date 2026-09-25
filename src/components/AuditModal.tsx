@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { BrandIcon } from './BrandLogo';
+import { submitLead } from '../lib/api';
+import { isValidEmail, isValidIndianMobile } from '../lib/validation';
 
 interface AuditModalProps {
   isOpen: boolean;
@@ -27,6 +29,7 @@ export const AuditModal: React.FC<AuditModalProps> = ({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (defaultService) {
@@ -41,11 +44,31 @@ export const AuditModal: React.FC<AuditModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    if (!isValidEmail(formData.email)) {
+      setError('Please provide a valid work email.');
+      return;
+    }
+    if (!isValidIndianMobile(formData.whatsapp)) {
+      setError('Please provide a valid 10-digit Indian WhatsApp number.');
+      return;
+    }
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 700);
+    submitLead({
+      formType: 'growth_audit',
+      fullName: formData.fullName,
+      email: formData.email,
+      whatsapp: formData.whatsapp,
+      companyName: formData.companyName,
+      objective: formData.objective,
+      budget: formData.budget,
+      notes: formData.notes,
+    })
+      .then(() => setIsSubmitted(true))
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Unable to submit. Please try again.');
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
@@ -193,6 +216,10 @@ export const AuditModal: React.FC<AuditModalProps> = ({
                   ))}
                 </div>
               </div>
+
+              {error && (
+                <p className="text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2">{error}</p>
+              )}
 
               <div className="pt-2">
                 <button
