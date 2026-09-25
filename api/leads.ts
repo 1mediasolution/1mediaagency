@@ -36,6 +36,7 @@ export default async function handler(req: any, res: any) {
   const email = clean(body.email, 254);
   const whatsapp = clean(body.whatsapp, 40);
   const companyName = clean(body.companyName, 160);
+  const whatsappDigits = whatsapp.replace(/\\D/g, '');
   const websiteUrl = clean(body.websiteUrl, 500);
   const objective = clean(body.objective, 300);
   const budget = clean(body.budget, 100);
@@ -45,8 +46,12 @@ export default async function handler(req: any, res: any) {
     return json(res, 400, { error: 'Please complete all required fields.' });
   }
 
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!/^[A-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+$/i.test(email)) {
     return json(res, 400, { error: 'Please provide a valid email address.' });
+  }
+
+  if (!/^(?:91)?[6-9]\\d{9}$/.test(whatsappDigits)) {
+    return json(res, 400, { error: 'Please provide a valid 10-digit Indian WhatsApp number.' });
   }
 
   const supabaseUrl = process.env.SUPABASE_URL;
