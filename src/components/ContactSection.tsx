@@ -12,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { BrandIcon } from './BrandLogo';
+import { submitLead } from '../lib/api';
 
 interface ContactSectionProps {
   initialObjective?: string;
@@ -67,11 +68,23 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Simulate real submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsSubmitted(true);
-    }, 800);
+    setErrors({});
+    submitLead({
+      formType: 'contact',
+      fullName: formData.fullName,
+      email: formData.email,
+      whatsapp: formData.whatsapp,
+      companyName: formData.companyName,
+      websiteUrl: formData.websiteUrl,
+      objective: formData.primaryObjective,
+      budget: formData.budgetAllocation,
+      notes: formData.notes,
+    })
+      .then(() => setIsSubmitted(true))
+      .catch((error) => {
+        setErrors({ form: error instanceof Error ? error.message : 'Unable to submit. Please try again.' });
+      })
+      .finally(() => setIsSubmitting(false));
   };
 
   return (
@@ -280,6 +293,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
 
                 {/* Direct Contact CTA */}
+                {errors.form && (
+                  <p className="text-xs text-rose-600 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2">{errors.form}</p>
+                )}
+
                 <div className="pt-2">
                   <button
                     type="submit"
