@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { BrandIcon } from './BrandLogo';
 import { submitLead } from '../lib/api';
+import { isValidEmail, isValidIndianMobile, isValidWebsiteUrl } from '../lib/validation';
 
 interface ContactSectionProps {
   initialObjective?: string;
@@ -50,14 +51,17 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!formData.fullName.trim()) errs.fullName = 'Full Name is required';
-    if (!formData.email.trim() || !formData.email.includes('@')) {
+    if (!formData.email.trim() || !isValidEmail(formData.email)) {
       errs.email = 'Please provide a valid work email';
     }
-    if (!formData.whatsapp.trim()) {
-      errs.whatsapp = 'Direct WhatsApp number is required for session coordination';
+    if (!formData.whatsapp.trim() || !isValidIndianMobile(formData.whatsapp)) {
+      errs.whatsapp = 'Please provide a valid 10-digit Indian WhatsApp number';
     }
     if (!formData.companyName.trim()) {
       errs.companyName = 'Company / Brand name is required';
+    }
+    if (!isValidWebsiteUrl(formData.websiteUrl)) {
+      errs.websiteUrl = 'Please enter a valid website URL starting with http:// or https://';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -224,12 +228,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       Website URL
                     </label>
                     <input
-                      type="text"
+                      type="url"
                       value={formData.websiteUrl}
                       onChange={(e) => setFormData({ ...formData, websiteUrl: e.target.value })}
                       placeholder="https://company.com"
                       className="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
                     />
+                    {errors.websiteUrl && (
+                      <p className="text-xs text-rose-600 mt-1">{errors.websiteUrl}</p>
+                    )}
                   </div>
                 </div>
 
