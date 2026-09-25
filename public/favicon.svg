@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="brandGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00D2FF" />
+      <stop offset="50%" stop-color="#3B82F6" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+  </defs>
+  <!-- Rounded triangle base -->
+  <path d="M12 18 C12 10 20 6 26 10 L88 44 C94 47 94 53 88 56 L26 90 C20 94 12 90 12 82 Z" fill="url(#brandGrad)" />
+  <!-- Negative space "1" cut-out matching the logo -->
+  <path d="M10 74 L42 42 L48 31 L48 80 L42 80 L42 48 L14 76 Z" fill="#FFFFFF" />
+</svg>
