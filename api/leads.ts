@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 type LeadPayload = {
   formType?: string;
   fullName?: string;
@@ -13,14 +11,14 @@ type LeadPayload = {
   honeypot?: string;
 };
 
-const json = (res: VercelResponse, status: number, body: Record<string, unknown>) => {
+const json = (res: any, status: number, body: Record<string, unknown>) => {
   res.status(status).json(body);
 };
 
 const clean = (value: unknown, max = 2000) =>
   typeof value === 'string' ? value.trim().slice(0, max) : '';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return json(res, 405, { error: 'Method not allowed.' });
